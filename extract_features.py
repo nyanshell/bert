@@ -355,7 +355,6 @@ def main(_):
       master=FLAGS.master,
       tpu_config=tf.contrib.tpu.TPUConfig(
           num_shards=FLAGS.num_tpu_cores,
-          train_batch_size=32,
           per_host_input_for_training=is_per_host))
 
   examples = read_examples(FLAGS.input_file)
@@ -380,6 +379,7 @@ def main(_):
       use_tpu=FLAGS.use_tpu,
       model_fn=model_fn,
       config=run_config,
+      train_batch_size=32,
       predict_batch_size=FLAGS.batch_size)
 
   input_fn = input_fn_builder(
