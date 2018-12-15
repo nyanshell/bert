@@ -26,6 +26,29 @@ import re
 import modeling
 import tokenization
 import tensorflow as tf
+import datetime
+import json
+import os
+import pprint
+import random
+import string
+import sys
+
+assert 'COLAB_TPU_ADDR' in os.environ, 'ERROR: Not connected to a TPU runtime; please see the first cell in this notebook for instructions!'
+TPU_ADDRESS = 'grpc://' + os.environ['COLAB_TPU_ADDR']
+print('TPU address is', TPU_ADDRESS)
+
+from google.colab import auth
+auth.authenticate_user()
+with tf.Session(TPU_ADDRESS) as session:
+  print('TPU devices:')
+  pprint.pprint(session.list_devices())
+
+  # Upload credentials to TPU.
+  with open('/content/adc.json', 'r') as f:
+    auth_info = json.load(f)
+  tf.contrib.cloud.configure_gcs(session, credentials=auth_info)
+  # Now credentials are set for all future sessions on this TPU.
 
 flags = tf.flags
 
@@ -352,7 +375,7 @@ def main(_):
 
   is_per_host = tf.contrib.tpu.InputPipelineConfig.PER_HOST_V2
   run_config = tf.contrib.tpu.RunConfig(
-      master=FLAGS.master,
+      master=TPU_ADDRESS,
       tpu_config=tf.contrib.tpu.TPUConfig(
           num_shards=FLAGS.num_tpu_cores,
           per_host_input_for_training=is_per_host))
